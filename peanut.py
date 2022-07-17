@@ -1,5 +1,5 @@
 import asyncio
-from html import entities
+from os import getenv
 import discord
 from discord.ext import commands
 from discord_together import DiscordTogether
@@ -8,18 +8,9 @@ from discord_slash.utils.manage_commands import create_option
 from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
 import youtube_dl
-import json
-
-
-def read_token():
-
-    config = open('config.json')
-    configs = json.load(config)
-    return configs['token']
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
-token = read_token()
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
 queue = []
@@ -165,4 +156,4 @@ async def ensure_voice(ctx: SlashContext):
         await ctx.send("*__ It's lonely in there, please join a channel first __*")
 
 
-bot.run(token)
+bot.run(getenv('TOKEN'))
