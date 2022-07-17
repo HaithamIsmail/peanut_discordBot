@@ -37,15 +37,6 @@ ffmpeg_options = {
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
-
-
-@bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="how peanut trees grow"))
-    bot.togetherControl = await DiscordTogether(token)
-    print('Logged in as {0.user}'.format(bot))
-    print(f'{len(bot.guilds)}')
-
 @slash.slash(name='greet', description='Greets the user')
 async def greet_command(ctx: SlashContext):
     try:
