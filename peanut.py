@@ -14,8 +14,7 @@ bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
-UNSPLASH_ACCESS_KEY = 'RUllKUvNdH11mAZNgkWp_uzr3PU2rRIFidCCGsoDNC4'
-pu = PyUnsplash(api_key=UNSPLASH_ACCESS_KEY)
+pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
 queue = []
 yt_url = ''
 players = {}
@@ -160,7 +159,7 @@ async def ensure_voice(ctx: SlashContext):
 async def image_command(ctx: SlashContext, *, query:str):
     photos = pu.photos(type_='random', count=1, featured=True, query=query)
     [photo] = photos.entries
-    attribution = photo.get_attribution(format='text')
+    attribution = photo.get_attribution(format='txt')
     link = photo.link_download
     embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
     await ctx.send(embed=embed)
