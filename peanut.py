@@ -9,7 +9,7 @@ from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
 import youtube_dl
 from pyunsplash import PyUnsplash
-from datetime import datetime as dt
+import time
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
@@ -22,6 +22,10 @@ pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
  ################   VARIABLES   ################
 
 #################################################
+
+time_since_first_request = 0
+unsplash_request_counter = 50
+UNSPLASH_REQ_PER_HOUR = 50
 
 queue = []
 yt_url = ''
@@ -131,14 +135,20 @@ async def skip(ctx: SlashContext):
                      option_type=SlashCommandOptionType.STRING)])
 async def image_command(ctx: SlashContext, *, query:str):
     try:
-        photos = pu.photos(type_='random', count=1, featured=True, query=query)
-        [photo] = photos.entries
-        attribution = photo.get_attribution(format='txt')
-        link = photo.link_download
-        embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-        embed.set_image(url = link)
-        await ctx.send(embed=embed)
-        # await ctx.send(link)
+        if unsplash_request_counter > 0:
+            if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
+                time_since_first_request = int(time.time())
+                unsplash_request_counter = UNSPLASH_REQ_PER_HOUR
+            photos = pu.photos(type_='random', count=1, featured=True, query=query)
+            [photo] = photos.entries
+            attribution = photo.get_attribution(format='txt')
+            link = photo.link_download
+            embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+            embed.set_image(url = link)
+            await ctx.send(embed=embed)
+            unsplash_request_counter = unsplash_request_counter - 1
+        else:
+            await ctx.send('Maximum requests reached for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
     except Exception as e:
         print(str(e))
         
