@@ -135,6 +135,7 @@ async def skip(ctx: SlashContext):
                      option_type=SlashCommandOptionType.STRING)])
 async def image_command(ctx: SlashContext, *, query:str):
     try:
+        global time_since_first_request, unsplash_request_counter
         if unsplash_request_counter > 0:
             if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
                 time_since_first_request = int(time.time())
