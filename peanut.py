@@ -160,9 +160,9 @@ async def ensure_voice(ctx: SlashContext):
 async def image_command(ctx: SlashContext, *, query:str):
     photos = pu.photos(type_='random', count=1, featured=True, query=query)
     [photo] = photos.entries
-    attribution = photo.get_attribution(format='html')
+    attribution = photo.get_attribution(format='text')
     link = photo.link_download
-    embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}\n\n{link}", color=discord.Color.green())
-    await ctx.send(embed=embed)
+    embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+    await ctx.send(content = link, embed=embed)
                 
 bot.run(getenv('TOKEN'))
