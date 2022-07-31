@@ -106,7 +106,7 @@ async def play_YT(ctx: SlashContext, *, search:str):
             channel_url = info['channel_url']
             
             if len(queue) == 0:
-                embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.green())
+                embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
                 ctx.voice_client.play(player, after=lambda x=None: play_next(ctx.voice_client))
                 queue.append(player)
@@ -115,6 +115,11 @@ async def play_YT(ctx: SlashContext, *, search:str):
                 queue.append(player)
     except Exception as e:
         print(str(e))
+
+@slash.slash(name='skip',
+             description='skip currently playing music')
+async def skip(ctx: SlashContext):
+    play_next(ctx.voice_client)
         
 @slash.slash(name='image', 
              description='Get random image using a query', 
