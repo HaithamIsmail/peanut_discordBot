@@ -157,13 +157,16 @@ async def ensure_voice(ctx: SlashContext):
                      required=True,
                      option_type=SlashCommandOptionType.STRING)])
 async def image_command(ctx: SlashContext, *, query:str):
-    photos = pu.photos(type_='random', count=1, featured=True, query=query)
-    [photo] = photos.entries
-    attribution = photo.get_attribution(format='txt')
-    link = photo.link_download
-    embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-    embed.set_image(link)
-    await ctx.send(embed=embed)
-    # await ctx.send(link)
+    try:
+        photos = pu.photos(type_='random', count=1, featured=True, query=query)
+        [photo] = photos.entries
+        attribution = photo.get_attribution(format='txt')
+        link = photo.link_download
+        embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+        embed.set_image(link)
+        await ctx.send(embed=embed)
+        # await ctx.send(link)
+    except Exception as e:
+        print(str(e))
                 
 bot.run(getenv('TOKEN'))
