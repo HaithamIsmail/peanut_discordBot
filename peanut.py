@@ -8,11 +8,14 @@ from discord_slash.utils.manage_commands import create_option
 from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
 import youtube_dl
+from pyunsplash import PyUnsplash
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
+UNSPLASH_ACCESS_KEY = 'RUllKUvNdH11mAZNgkWp_uzr3PU2rRIFidCCGsoDNC4'
+pu = PyUnsplash(api_key=UNSPLASH_ACCESS_KEY)
 queue = []
 yt_url = ''
 players = {}
@@ -64,8 +67,8 @@ async def stop(ctx: SlashContext):
              description='Plays a video from YouTube', 
              options=[
                  create_option(
-                     name='url',
-                     description='Link to the YT video',
+                     name='search',
+                     description='Video name or url',
                      required=True,
                      option_type=SlashCommandOptionType.STRING)])
 async def play_YT(ctx: SlashContext, *, url:str):
@@ -145,6 +148,21 @@ async def ensure_voice(ctx: SlashContext):
             ctx.voice_client.stop()
     else:
         await ctx.send("*__ It's lonely in there, please join a channel first __*")
-
-
+        
+@slash.slash(name='image', 
+             description='Get random image using a query', 
+             options=[
+                 create_option(
+                     name='query',
+                     description='Search query',
+                     required=True,
+                     option_type=SlashCommandOptionType.STRING)])
+async def image_command(ctx: SlashContext, *, query:str):
+    photos = pu.photos(type_='random', count=1, featured=True, query=query)
+    [photo] = photos.entries
+    attribution = photo.get_attribution(format='html')
+    link = photo.link_download
+    embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}\n\n{link}", color=discord.Color.green())
+    await ctx.send(embed=embed)
+                
 bot.run(getenv('TOKEN'))
