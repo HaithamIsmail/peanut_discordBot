@@ -9,16 +9,23 @@ from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
 import youtube_dl
 from pyunsplash import PyUnsplash
+from datetime import datetime as dt
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
 pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
+
+#################################################
+        
+ ################   VARIABLES   ################
+
+#################################################
+
 queue = []
 yt_url = ''
 players = {}
-
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -32,12 +39,18 @@ ytdl_format_options = {
     'default_search': 'auto',
     'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
-
 ffmpeg_options = {
     'options': '-vn',
 }
-
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+
+
+################################################
+        
+################ SLASH COMMANDS ################
+
+################################################
 
 @slash.slash(name='greet', description='Greets the user')
 async def greet_command(ctx: SlashContext):
@@ -70,17 +83,17 @@ async def stop(ctx: SlashContext):
                      description='Video name or url',
                      required=True,
                      option_type=SlashCommandOptionType.STRING)])
-async def play_YT(ctx: SlashContext, *, url:str):
+async def play_YT(ctx: SlashContext, *, search:str):
     global yt_url
     global queue
     try:
         await ensure_voice(ctx)
         if ctx.author.voice:
             
-            if 'https://' in url or 'http://' in url:
-               yt_url = url
+            if 'https://' in search or 'http://' in search:
+               yt_url = search
             else:
-                yt_url = await getYtVideo(ctx, url) 
+                yt_url = await getYtVideo(ctx, search) 
             
             player, info = await ytdl_source(yt_url, loop=bot.loop, stream=True)
             
@@ -102,6 +115,33 @@ async def play_YT(ctx: SlashContext, *, url:str):
                 queue.append(player)
     except Exception as e:
         print(str(e))
+        
+@slash.slash(name='image', 
+             description='Get random image using a query', 
+             options=[
+                 create_option(
+                     name='query',
+                     description='Search query',
+                     required=True,
+                     option_type=SlashCommandOptionType.STRING)])
+async def image_command(ctx: SlashContext, *, query:str):
+    try:
+        photos = pu.photos(type_='random', count=1, featured=True, query=query)
+        [photo] = photos.entries
+        attribution = photo.get_attribution(format='txt')
+        link = photo.link_download
+        embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+        embed.set_image(url = link)
+        await ctx.send(embed=embed)
+        # await ctx.send(link)
+    except Exception as e:
+        print(str(e))
+        
+################################################
+        
+################ HELPER METHODS ################
+
+################################################
         
 async def ytdl_source(url, *, loop=None, stream=False):
     try:
@@ -147,26 +187,5 @@ async def ensure_voice(ctx: SlashContext):
             ctx.voice_client.stop()
     else:
         await ctx.send("*__ It's lonely in there, please join a channel first __*")
-        
-@slash.slash(name='image', 
-             description='Get random image using a query', 
-             options=[
-                 create_option(
-                     name='query',
-                     description='Search query',
-                     required=True,
-                     option_type=SlashCommandOptionType.STRING)])
-async def image_command(ctx: SlashContext, *, query:str):
-    try:
-        photos = pu.photos(type_='random', count=1, featured=True, query=query)
-        [photo] = photos.entries
-        attribution = photo.get_attribution(format='txt')
-        link = photo.link_download
-        embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-        embed.set_image(url = link)
-        await ctx.send(embed=embed)
-        # await ctx.send(link)
-    except Exception as e:
-        print(str(e))
                 
 bot.run(getenv('TOKEN'))
