@@ -163,7 +163,7 @@ async def image_command(ctx: SlashContext, *, query:str):
         attribution = photo.get_attribution(format='txt')
         link = photo.link_download
         embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-        embed.set_image(link)
+        embed.set_image(url = link)
         await ctx.send(embed=embed)
         # await ctx.send(link)
     except Exception as e:
