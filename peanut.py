@@ -163,6 +163,7 @@ async def image_command(ctx: SlashContext, *, query:str):
     attribution = photo.get_attribution(format='text')
     link = photo.link_download
     embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-    await ctx.send(content = link, embed=embed)
+    await ctx.send(embed=embed)
+    await ctx.send(link)
                 
 bot.run(getenv('TOKEN'))
