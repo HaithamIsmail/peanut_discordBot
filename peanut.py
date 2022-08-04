@@ -156,7 +156,7 @@ async def image_command(ctx: SlashContext, *, query:str):
     except Exception as e:
         print(str(e))
     
-@slash.slash(name="reddit search",
+@slash.slash(name="RedditSearch",
              description="Search reddit",
              options=[
                  create_option(
