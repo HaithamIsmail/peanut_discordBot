@@ -181,7 +181,7 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     embed.set_image(url = link)
                     await ctx.send(embed=embed)
                 else:
-                    await ctx.send('No results were found')
+                    await ctx.send('**No results were found!!**')
             else:
                 await ctx.send('Maximum requests reached on Pexels for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
         
@@ -214,6 +214,16 @@ async def search_reddit(ctx:SlashContext, *, query:str, subreddit:str="all"):
                 break
         embed = discord.Embed(title='Reddit search results', description=output, color=discord.Color.orange())
         await ctx.send(embed=embed)
+    except Exception as e:
+        print(str(e))
+        
+@slash.slash(name='Thanks',
+             description='Thank peanut for his efforts')
+async def thanks_command(ctx:SlashContext):
+    try:
+        author = ctx.author.name
+        await ctx.send(f'**{author}**, no problem..!!')
+        await ctx.send(file=discord.file('mp3/brother.mp3'))
     except Exception as e:
         print(str(e))
         
