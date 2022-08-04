@@ -8,7 +8,6 @@ from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
 from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
-from sklearn.metrics import davies_bouldin_score
 import youtube_dl
 from pyunsplash import PyUnsplash
 import time

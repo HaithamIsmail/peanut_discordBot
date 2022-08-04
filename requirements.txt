@@ -13,4 +13,5 @@ yt-dlp==2022.6.29
 asyncio
 pyunsplash
 asyncpraw
+pypexels
 
