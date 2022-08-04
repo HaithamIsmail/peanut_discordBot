@@ -12,5 +12,5 @@ youtube-dl==2021.12.17
 yt-dlp==2022.6.29
 asyncio
 pyunsplash
-praw
+asyncpraw
 
