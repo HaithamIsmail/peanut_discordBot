@@ -1,5 +1,6 @@
 import asyncio
 from os import getenv
+from token import SLASHEQUAL
 import discord
 from discord.ext import commands
 from discord_together import DiscordTogether
@@ -10,12 +11,14 @@ import urllib.parse, urllib.request, re
 import youtube_dl
 from pyunsplash import PyUnsplash
 import time
+import praw
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
 pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
+reddit = praw.Reddit(client_id = getenv('REDDIT_ID'), client_secret = getenv('REDDIT_SECRET'), user_agent = "pythonpraw")
 
 #################################################
         
@@ -150,6 +153,30 @@ async def image_command(ctx: SlashContext, *, query:str):
             unsplash_request_counter = unsplash_request_counter - 1
         else:
             await ctx.send('Maximum requests reached for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
+    except Exception as e:
+        print(str(e))
+    
+@slash.slash(name="reddit search",
+             description="Search reddit",
+             options=[
+                 create_option(
+                     name='query',
+                     required=True,
+                     description='query used for search',
+                     option_type=SlashCommandOptionType.STRING),
+                 create_option(
+                     name="subreddit",
+                     required=False,
+                     description="Search in a specific subreddit",
+                     option_type=SlashCommandOptionType.STRING)
+             ])
+async def search_reddit(ctx:SlashContext, *, query:str, subreddit_name:str="all"):
+    try:
+        output = subreddit_name
+        for post in reddit.subreddit(subreddit_name).search(query):
+            output = output + ("\n{}\n{}\n".format(post.title,post.url))
+        embed = discord.Embed(title='Reddit search results', description=output, color=discord.Color.orange())
+        await ctx.send(embed=embed)
     except Exception as e:
         print(str(e))
         
