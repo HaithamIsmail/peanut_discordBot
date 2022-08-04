@@ -170,10 +170,10 @@ async def image_command(ctx: SlashContext, *, query:str):
                      description="Search in a specific subreddit",
                      option_type=SlashCommandOptionType.STRING)
              ])
-async def search_reddit(ctx:SlashContext, *, query:str, subreddit_name:str="all"):
+async def search_reddit(ctx:SlashContext, *, query:str, subreddit:str="all"):
     try:
-        output = subreddit_name
-        for post in reddit.subreddit(subreddit_name).search(query):
+        output = subreddit
+        for post in reddit.subreddit(subreddit).search(query):
             output = output + ("\n{}\n{}\n".format(post.title,post.url))
         embed = discord.Embed(title='Reddit search results', description=output, color=discord.Color.orange())
         await ctx.send(embed=embed)
