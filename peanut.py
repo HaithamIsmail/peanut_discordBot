@@ -168,7 +168,9 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                 search_results = pexels.search(query=query, per_page=40).entries
                 random_pic = random.choice(list(search_results))
                 attribution = f"Photo by {random_pic.photographer} on Pexels"
-                link = random_pic.url
+                photographer = (random_pic.photographer).split(' ')
+                link = f'https://images.pexels.com/photos/{random_pic.id}/pexels-photo-{random_pic.id}.jpeg?cs=srgb&dl=pexels-{photographer[0]}-{photographer[1]}-{random_pic.id}.jpg&fm=jpg'
+                # link = random_pic.url
         
         embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
         embed.set_image(url = link)
