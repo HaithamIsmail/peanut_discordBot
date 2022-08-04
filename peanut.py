@@ -1,5 +1,6 @@
 import asyncio
 from os import getenv
+import random
 import discord
 from discord.ext import commands
 from discord_together import DiscordTogether
@@ -7,10 +8,12 @@ from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
 from discord_slash.model import SlashCommandOptionType
 import urllib.parse, urllib.request, re
+from sklearn.metrics import davies_bouldin_score
 import youtube_dl
 from pyunsplash import PyUnsplash
 import time
 import asyncpraw
+import pypexels
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
@@ -18,6 +21,7 @@ bot.remove_command('help') # <---- DO NOT EDIT --->
 
 pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
 reddit = asyncpraw.Reddit(client_id = getenv('REDDIT_ID'), client_secret = getenv('REDDIT_SECRET'), user_agent = "pythonpraw")
+pexels = pypexels.PyPexels(api_key=getenv('PEXELS_KEY'))
 
 #################################################
         
@@ -28,6 +32,8 @@ reddit = asyncpraw.Reddit(client_id = getenv('REDDIT_ID'), client_secret = geten
 time_since_first_request = 0
 unsplash_request_counter = 50
 UNSPLASH_REQ_PER_HOUR = 50
+pexels_request_counter = 50
+PEXELS_REQ_PER_HOUR = 200
 
 queue = []
 yt_url = ''
@@ -134,24 +140,40 @@ async def skip(ctx: SlashContext):
                      name='query',
                      description='Search query',
                      required=True,
-                     option_type=SlashCommandOptionType.STRING)])
-async def image_command(ctx: SlashContext, *, query:str):
+                     option_type=SlashCommandOptionType.STRING),
+                 create_option(name='source',
+                               description='source to to get image from (Unsplash/Pexels)',
+                               required=False,
+                               option_type=SlashCommandOptionType.STRING)
+                 ])
+async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
     try:
         global time_since_first_request, unsplash_request_counter
-        if unsplash_request_counter > 0:
-            if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
-                time_since_first_request = int(time.time())
-                unsplash_request_counter = UNSPLASH_REQ_PER_HOUR
-            photos = pu.photos(type_='random', count=1, featured=True, query=query)
-            [photo] = photos.entries
-            attribution = photo.get_attribution(format='txt')
-            link = photo.link_download
-            embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-            embed.set_image(url = link)
-            await ctx.send(embed=embed)
-            unsplash_request_counter = unsplash_request_counter - 1
-        else:
-            await ctx.send('Maximum requests reached for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
+        if source.lower() == 'unsplash':
+            if unsplash_request_counter > 0:
+                if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
+                    time_since_first_request = int(time.time())
+                    unsplash_request_counter = UNSPLASH_REQ_PER_HOUR
+                photos = pu.photos(type_='random', count=1, featured=True, query=query)
+                [photo] = photos.entries
+                attribution = photo.get_attribution(format='txt')
+                link = photo.link_download
+                unsplash_request_counter = unsplash_request_counter - 1
+            else:
+                await ctx.send('Maximum requests reached for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
+        elif source.lower() == 'pexels':
+            if pexels_request_counter > 0:
+                if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
+                    time_since_first_request = int(time.time())
+                    unsplash_request_counter = PEXELS_REQ_PER_HOUR
+                search_results = pexels.search(query=query, per_page=40)
+                random_pic = random.choice(search_results)
+                attribution = f"Photo by {random_pic.photographer} on Pexels"
+                link = random_pic.url
+        
+        embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+        embed.set_image(url = link)
+        await ctx.send(embed=embed)
     except Exception as e:
         print(str(e))
     
