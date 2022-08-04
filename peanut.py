@@ -1,6 +1,5 @@
 import asyncio
 from os import getenv
-from token import SLASHEQUAL
 import discord
 from discord.ext import commands
 from discord_together import DiscordTogether
@@ -11,14 +10,14 @@ import urllib.parse, urllib.request, re
 import youtube_dl
 from pyunsplash import PyUnsplash
 import time
-import praw
+import asyncpraw
 
 bot = commands .Bot(command_prefix='p!')
 slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help') # <---- DO NOT EDIT --->
 
 pu = PyUnsplash(api_key=getenv('UNSPLASH_ACCESS_KEY'))
-reddit = praw.Reddit(client_id = getenv('REDDIT_ID'), client_secret = getenv('REDDIT_SECRET'), user_agent = "pythonpraw")
+reddit = asyncpraw.Reddit(client_id = getenv('REDDIT_ID'), client_secret = getenv('REDDIT_SECRET'), user_agent = "pythonpraw")
 
 #################################################
         
@@ -173,7 +172,7 @@ async def image_command(ctx: SlashContext, *, query:str):
 async def search_reddit(ctx:SlashContext, *, query:str, subreddit:str="all"):
     try:
         output = subreddit
-        for post in reddit.subreddit(subreddit).search(query):
+        for post in (await reddit.subreddit(subreddit).search(query)):
             output = output + ("\n{}\n{}\n".format(post.title,post.url))
         embed = discord.Embed(title='Reddit search results', description=output, color=discord.Color.orange())
         await ctx.send(embed=embed)
