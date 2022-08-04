@@ -222,8 +222,7 @@ async def search_reddit(ctx:SlashContext, *, query:str, subreddit:str="all"):
 async def thanks_command(ctx:SlashContext):
     try:
         author = ctx.author.name
-        await ctx.send(f'**{author}**, no problem..!!')
-        await ctx.send(file=discord.File('mp3/brother.mp3'))
+        await ctx.send(content=f'**{author}**, no problem..!!',file=discord.File('mp3/brother.mp3'))
     except Exception as e:
         print(str(e))
         
