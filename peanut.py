@@ -165,7 +165,7 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                 if (time_since_first_request == 0) or (int(time.time()) - time_since_first_request >= 3600):
                     time_since_first_request = int(time.time())
                     unsplash_request_counter = PEXELS_REQ_PER_HOUR
-                search_results = pexels.search(query=query, per_page=40)
+                search_results = pexels.search(query=query, per_page=40).entries
                 random_pic = random.choice(search_results)
                 attribution = f"Photo by {random_pic.photographer} on Pexels"
                 link = random_pic.url
