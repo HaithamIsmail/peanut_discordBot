@@ -173,10 +173,11 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                 if (time_since_first_request_pexels == 0) or (int(time.time()) - time_since_first_request_pexels >= 3600):
                     time_since_first_request_pexels = int(time.time())
                     pexels_request_counter = PEXELS_REQ_PER_HOUR
-                search_results = pexels.search(query=query, per_page=40).entries
-                boolean = (len(list(search_results)) > 0)
-                if boolean:
-                    random_pic = random.choice(list(search_results))
+                else:
+                    print('here')
+                search_results_list = list(pexels.search(query=query, per_page=40).entries)
+                if len(search_results_list) > 0:
+                    random_pic = random.choice(search_results_list)
                     attribution = f"Photo by {random_pic.photographer} on Pexels"
                     print(attribution)
                     photographer = (random_pic.photographer).split(' ')
@@ -187,7 +188,6 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     embed.set_image(url = link)
                     await ctx.send(embed=embed)
                 else:
-                    print('here')
                     await ctx.send('**No results were found!!**')
             else:
                 await ctx.send('Maximum requests reached on Pexels for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
