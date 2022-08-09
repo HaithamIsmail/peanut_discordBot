@@ -174,9 +174,11 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     time_since_first_request_pexels = int(time.time())
                     pexels_request_counter = PEXELS_REQ_PER_HOUR
                 search_results = pexels.search(query=query, per_page=40).entries
+                print(len(list(search_results)))
                 if len(list(search_results)) > 0:
                     random_pic = random.choice(list(search_results))
                     attribution = f"Photo by {random_pic.photographer} on Pexels"
+                    print(attribution)
                     photographer = (random_pic.photographer).split(' ')
                     print(photographer)
                     link = f'https://images.pexels.com/photos/{random_pic.id}/pexels-photo-{random_pic.id}.jpeg?cs=srgb&dl=pexels-{photographer[0]}-{photographer[1]}-{random_pic.id}.jpg&fm=jpg'
