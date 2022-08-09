@@ -187,6 +187,7 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     embed.set_image(url = link)
                     await ctx.send(embed=embed)
                 else:
+                    print('here')
                     await ctx.send('**No results were found!!**')
             else:
                 await ctx.send('Maximum requests reached on Pexels for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
