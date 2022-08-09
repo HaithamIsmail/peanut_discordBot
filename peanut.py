@@ -155,13 +155,16 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     time_since_first_request = int(time.time())
                     unsplash_request_counter = UNSPLASH_REQ_PER_HOUR
                 photos = pu.photos(type_='random', count=1, featured=True, query=query)
-                [photo] = photos.entries
-                attribution = photo.get_attribution(format='txt')
-                link = photo.link_download
-                unsplash_request_counter = unsplash_request_counter - 1
-                embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
-                embed.set_image(url = link)
-                await ctx.send(embed=embed)
+                if len(list(photos.entries)) > 0:
+                    [photo] = photos.entries
+                    attribution = photo.get_attribution(format='txt')
+                    link = photo.link_download
+                    unsplash_request_counter = unsplash_request_counter - 1
+                    embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
+                    embed.set_image(url = link)
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send('**No results were found!!**')
             else:
                 await ctx.send('Maximum requests reached on Unsplash for this hour, you must wait **{}** minutes before next request'.format((time_since_first_request+3600-int(time.time())/60)))
         elif source.lower() == 'pexels':
@@ -175,6 +178,7 @@ async def image_command(ctx: SlashContext, *, query:str, source:str='pexels'):
                     random_pic = random.choice(list(search_results))
                     attribution = f"Photo by {random_pic.photographer} on Pexels"
                     photographer = (random_pic.photographer).split(' ')
+                    print(photographer)
                     link = f'https://images.pexels.com/photos/{random_pic.id}/pexels-photo-{random_pic.id}.jpeg?cs=srgb&dl=pexels-{photographer[0]}-{photographer[1]}-{random_pic.id}.jpg&fm=jpg'
                     # link = random_pic.url
                     embed = discord.Embed(title="Image Picked:", description=f"**Attribution :** \n{attribution}", color=discord.Color.green())
