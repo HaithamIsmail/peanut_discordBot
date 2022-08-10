@@ -131,7 +131,8 @@ async def play_YT(ctx: SlashContext, *, search:str):
 @slash.slash(name='skip',
              description='skip currently playing music')
 async def skip(ctx: SlashContext):
-    play_next(ctx.voice_client)
+    # play_next(ctx.voice_client)
+    ctx.voice_client.stop()
         
 @slash.slash(name='image', 
              description='Get random image using a query', 
