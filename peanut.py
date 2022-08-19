@@ -56,7 +56,7 @@ ffmpeg_options = {
 }
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
-
+current_song = ''
 
 ################################################
         
@@ -120,8 +120,8 @@ async def play_YT(ctx: SlashContext, *, search:str):
             if len(queue) == 0:
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
-                ctx.voice_client.play(player, after=lambda x=None: play_next(ctx.voice_client))
                 queue.append(player)
+                ctx.voice_client.play(player, after=lambda x=None: play_next(ctx.voice_client))
             else:
                 await ctx.send('**Song queued**')
                 queue.append(player)
