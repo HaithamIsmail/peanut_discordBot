@@ -117,7 +117,7 @@ async def play_YT(ctx: SlashContext, *, search:str):
             channel = info['channel']
             channel_url = info['channel_url']
             
-            if len(queue) == 0:
+            if len(queue) == 0 and ~(ctx.voice_client.is_playing()):
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
                 queue.append(player)
@@ -127,11 +127,16 @@ async def play_YT(ctx: SlashContext, *, search:str):
                 queue.append(player)
     except Exception as e:
         print(str(e))
+        queue.clear()
 
 @slash.slash(name='skip',
              description='skip currently playing music')
 async def skip(ctx: SlashContext):
-    ctx.voice_client.stop()
+    try:
+        ctx.voice_client.stop()
+    except Exception as e:
+        print(str(e))
+        queue.clear() 
         
 @slash.slash(name='image', 
              description='Get random image using a query', 
@@ -270,6 +275,7 @@ async def play_next(ctx: SlashContext, voice):
             await ctx.send('**Queue is empty!**')
     except Exception as e:
         print(str(e))
+        queue.clear()
 
 async def ensure_voice(ctx: SlashContext):
     if ctx.author.voice:
