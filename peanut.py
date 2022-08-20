@@ -123,7 +123,7 @@ async def play_YT(ctx: SlashContext, *, search:str):
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
                 queue.append(player)
-                ctx.voice_client.play(player, after=lambda x=None: asyncio.run(play_next(ctx, ctx.voice_client)))
+                ctx.voice_client.play(player, after=lambda x=None: await play_next(ctx, ctx.voice_client))
             else:
                 await ctx.send('**Song queued**')
                 queue.append(player)
@@ -272,7 +272,7 @@ async def play_next(ctx: SlashContext, voice):
     try:
         if len(queue) > 0:
             player = queue.pop(0)
-            voice.play(player, after=lambda x=None: asyncio.run(play_next(ctx, voice)))
+            voice.play(player, after=lambda x=None: await play_next(ctx, voice))
         else:
             await ctx.send('**Queue is empty!**')
     except Exception as e:
