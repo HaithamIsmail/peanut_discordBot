@@ -84,8 +84,10 @@ async def stop(ctx: SlashContext):
     """Stops and disconnects the bot from voice"""
     try:    
         await ctx.voice_client.disconnect()
+        queue.clear()
     except Exception as e:
         print(str(e))
+        queue.clear()
         
 @slash.slash(name='play', 
              description='Plays a video from YouTube', 
@@ -117,6 +119,7 @@ async def play_YT(ctx: SlashContext, *, search:str):
             channel = info['channel']
             channel_url = info['channel_url']
             
+            print(ctx.voice_client.is_playing())
             if len(queue) == 0 and ~(ctx.voice_client.is_playing()):
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
