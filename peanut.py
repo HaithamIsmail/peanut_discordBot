@@ -119,7 +119,6 @@ async def play_YT(ctx: SlashContext, *, search:str):
             channel = info['channel']
             channel_url = info['channel_url']
             
-            print(ctx.voice_client.is_playing())
             if len(queue) == 0 and ~(ctx.voice_client.is_playing()):
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
@@ -291,8 +290,6 @@ async def ensure_voice(ctx: SlashContext):
         elif voice_channel != ctx.voice_client.channel:
             await ctx.send("*__ I know you like peanuts, but I am in another channel right now! __* ")
             raise commands.CommandError("Author not connected to a voice channel")
-        elif ctx.voice_client.is_playing():
-            ctx.voice_client.stop()
     else:
         await ctx.send("*__ It's lonely in there, please join a channel first __*")
                 
