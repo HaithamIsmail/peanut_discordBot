@@ -121,7 +121,7 @@ async def play_YT(ctx: SlashContext, *, search:str):
                 embed = discord.Embed(title="Playing song:", description=f"**Channel :** [{channel}]({channel_url})\n\n[{title}]({yt_url})\n\n\nduration:  {hours if hours>=10 else ('0'+str(hours))}:{minutes if minutes>=10 else ('0'+str(minutes))}:{seconds if seconds>=10 else ('0'+str(seconds))}", color=discord.Color.blue())
                 await ctx.send(embed=embed)
                 queue.append(player)
-                ctx.voice_client.play(player, after=lambda x=None: play_next(ctx.voice_client))
+                ctx.voice_client.play(player, after=lambda x=None: asyncio.run(play_next(ctx, ctx.voice_client)))
             else:
                 await ctx.send('**Song queued**')
                 queue.append(player)
@@ -131,7 +131,6 @@ async def play_YT(ctx: SlashContext, *, search:str):
 @slash.slash(name='skip',
              description='skip currently playing music')
 async def skip(ctx: SlashContext):
-    # play_next(ctx.voice_client)
     ctx.voice_client.stop()
         
 @slash.slash(name='image', 
@@ -262,12 +261,15 @@ async def getYtVideo(ctx, search):
     url = 'http://www.youtube.com/watch?v=' + search_results[0]
     return url
 
-def play_next(voice):
+async def play_next(ctx: SlashContext, voice):
     try:
-        player = queue.pop(0)
-        voice.play(player, after=lambda x=None: play_next(voice))
-    except:
-        pass
+        if len(queue) > 0:
+            player = queue.pop(0)
+            voice.play(player, after=lambda x=None: asyncio.run(play_next(ctx, voice)))
+        else:
+            await ctx.send('**Queue is empty!**')
+    except Exception as e:
+        print(str(e))
 
 async def ensure_voice(ctx: SlashContext):
     if ctx.author.voice:
@@ -280,7 +282,7 @@ async def ensure_voice(ctx: SlashContext):
         elif voice_channel != ctx.voice_client.channel:
             await ctx.send("*__ I know you like peanuts, but I am in another channel right now! __* ")
             raise commands.CommandError("Author not connected to a voice channel")
-    elif ctx.voice_client.is_playing():
+        elif ctx.voice_client.is_playing():
             ctx.voice_client.stop()
     else:
         await ctx.send("*__ It's lonely in there, please join a channel first __*")
